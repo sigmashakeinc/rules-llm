@@ -42,24 +42,22 @@ rule no-user-input-in-system-prompt {
   enabled true
   priority 85
   severity warning
-  ASK write
+  LOG write
   IF content LINE_REGEX "role:\\s*['\"]system['\"]" AND content LINE_REGEX "content:\\s*`[^`]*\\$\\{"
   OR content LINE_REGEX "system_prompt.*\\+.*user"
   OR content LINE_REGEX "system.*f['\"].*\\{user"
   MESSAGE "User-controlled content in system prompt enables prompt injection. The system prompt should be static — interpolate user data into user messages only."
-  PROMPT "Does this interpolated value come from user input? If so, move it from the system prompt to the user message to prevent prompt injection."
 }
 
 rule no-logging-llm-responses {
   enabled true
   priority 75
   severity warning
-  ASK write
+  LOG write
   IF content LINE_REGEX "console\\.log.*(?:response|completion|message|content)"
   OR content LINE_REGEX "logger\\.info.*(?:response|completion|message|content)"
   OR content LINE_REGEX "print.*(?:response|completion|message|content)"
   MESSAGE "Logging full LLM responses may capture PII, confidential business data, or sensitive content. Log metadata (tokens, latency, model) but not the response body."
-  PROMPT "What is being logged here? Full response bodies can contain sensitive user data. Log only metadata unless this is debug mode with explicit user consent."
 }
 
 rule ask-temperature-above-one {
